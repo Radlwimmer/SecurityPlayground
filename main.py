@@ -9,7 +9,9 @@ from src.detection import (
     create_alert
 )
 
-# 2. Sample security events
+from src.parser import parse_log_line
+
+# security events
 events = [
     {
         "timestamp": datetime(2026, 11, 15, 10, 0, 0),
@@ -44,14 +46,14 @@ events = [
 ]
 
 
-# 3. Detection configuration
+# config
 brute_force_threshold = 5
 brute_force_time_window = timedelta(minutes=5)
 spraying_threshold = 5
 spraying_time_window = timedelta(minutes=5)
 
 
-# 4. Run detection
+# run
 alerts = []
 
 source_ips = set(event["source_ip"] for event in events)
@@ -96,23 +98,29 @@ for source_ip in source_ips:
             )
         )
 
-# Save alerts to SQLite
+# save alerts to SQLite
 for alert in alerts:
     insert_alert(alert)
 
-print("\n===== ALERTS STORED IN DATABASE =====")
-
+print("\nAlerts in database:")
+print(alerts)
 saved_alerts = get_alerts()
-
 for alert in saved_alerts:
     print(alert)
 
-print("Alerts saved to database!")
+# parser tests
+test_line = "Nov 15 10:32:14 server sshd[1234]: Failed password for admin from 203.0.113.10 port 54321 ssh2"
+parsed_event = parse_log_line(test_line)
+print(parsed_event)
 
-# 5. Display alerts
-print("\n===== ALERT SUMMARY =====")
+success_line = "Nov 15 10:35:20 server sshd[1235]: Accepted password for admin from 203.0.113.20 port 54322 ssh2"
+parsed_success = parse_log_line(success_line)
+print(parsed_success)
 
-for alert in alerts:
-    print(f"{alert['alert_type']}: {alert['severity']}")
+other_line = "Nov 15 10:40:00 server systemd[1]: Started system service"
+parsed_other = parse_log_line(other_line)
+print(parsed_other)
 
-print(f"Total alerts: {len(alerts)}")
+invalid_user_line = "Nov 15 10:40:00 server sshd[1236]: Failed password for invalid user testadmin from 203.0.113.30 port 54323 ssh2"
+parsed_invalid = parse_log_line(invalid_user_line)
+print(parsed_invalid)
