@@ -1,7 +1,10 @@
 import sqlite3
+from pathlib import Path
 
 def connect_db():
-    connection = sqlite3.connect("security_events.db")
+    project_folder = Path(__file__).resolve().parent.parent
+    database_path = project_folder / "security_events.db"
+    connection = sqlite3.connect(database_path)
     return connection
 
 def create_tables():
@@ -17,6 +20,16 @@ def create_tables():
             severity TEXT,
             description TEXT,
             count INTEGER
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            username TEXT,
+            source_ip TEXT,
+            event_type TEXT
         )
     """)
 
@@ -70,6 +83,52 @@ def clear_alerts():
 
     cursor.execute("DELETE FROM alerts")
     cursor.execute("DELETE FROM sqlite_sequence WHERE name='alerts'")
+
+    connection.commit()
+    connection.close()
+
+def insert_event(event):
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO events (
+            timestamp,
+            username,
+            source_ip,
+            event_type
+        )
+        VALUES (?, ?, ?, ?)
+    """, (
+        event["timestamp"].isoformat(),
+        event["username"],
+        event["source_ip"],
+        event["event_type"]
+    ))
+
+    connection.commit()
+    connection.close()
+
+def get_events():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT * FROM events
+        ORDER BY timestamp DESC
+    """)
+
+    events = cursor.fetchall()
+
+    connection.close()
+    return events
+
+def clear_events():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM events")
+    cursor.execute("DELETE FROM sqlite_sequence WHERE name='events'")
 
     connection.commit()
     connection.close()

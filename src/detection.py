@@ -53,6 +53,35 @@ def detect_password_spraying(events, source_ip, threshold, window):
 
     return username_count >= threshold
 
+def detect_success_after_failures(events, source_ip, threshold, window):
+    ip_events = sorted(
+        [
+            event
+            for event in events
+            if event["source_ip"] == source_ip
+        ],
+        key=lambda event: event["timestamp"]
+    )
+
+    failed_timestamps = []
+
+    for event in ip_events:
+        if event["event_type"] == "FAILED":
+            failed_timestamps.append(event["timestamp"])
+
+        elif event["event_type"] == "SUCCESS":
+            recent_failures = [
+                timestamp
+                for timestamp in failed_timestamps
+                if timedelta(0) <= event["timestamp"] - timestamp <= window
+            ]
+
+            if len(recent_failures) >= threshold:
+                return len(recent_failures)
+
+    return 0
+
+
 def create_alert(source_ip, alert_type, severity, description, count):
     return {
         "timestamp": datetime.now().isoformat(),
