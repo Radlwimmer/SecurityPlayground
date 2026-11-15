@@ -1,4 +1,5 @@
 import argparse
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -22,6 +23,13 @@ from src.detection import (
 
 from src.parser import parse_log_file
 
+logging.basicConfig(
+    filename="securityplayground.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logging.info("SecurityPlayground started")
+
 # Create database
 create_tables()
 clear_alerts()
@@ -40,7 +48,7 @@ argument_parser.add_argument(
 args = argument_parser.parse_args()
 log_file_path = args.log_file
 if not Path(log_file_path).is_file():
-    print(f"Error: Log file not found: {log_file_path}")
+    logging.error("Log file not found: %s", log_file_path)
     raise SystemExit(1)
 parsed_events = parse_log_file(log_file_path)
 for event in parsed_events:
@@ -140,10 +148,10 @@ for alert in alerts:
 
 
 # 8. Display results
-print("\nEvents stored in database:")
+logging.info("Displaying events stored in database")
 for event in get_events():
     print(event)
 
-print("\nAlerts stored in database:")
+logging.info("Displaying alerts stored in database")
 for alert in get_alerts():
     print(alert)
