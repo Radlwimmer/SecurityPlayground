@@ -91,7 +91,7 @@ for source_ip in source_ips:
         source_ip,
         brute_force_time_window
     )
-
+    # detecting brute force
     if attempts_in_window >= brute_force_threshold:
         alerts.append(
             create_alert(
@@ -102,7 +102,12 @@ for source_ip in source_ips:
                 attempts_in_window
             )
         )
-
+        logging.warning(
+            "Brute-force activity detected from %s (%s failed attempts)",
+            source_ip,
+            attempts_in_window
+        )
+    # detecting spraying
     if detect_password_spraying(
         events,
         source_ip,
@@ -122,7 +127,11 @@ for source_ip in source_ips:
                 )
             )
         )
-
+        logging.warning(
+            "Password spraying detected from %s",
+            source_ip
+        )
+    # detect failures before success
     failures_before_success = detect_success_after_failures(
         events,
         source_ip,
@@ -140,7 +149,11 @@ for source_ip in source_ips:
                 failures_before_success
             )
         )
-
+        logging.warning(
+            "Successful login after repeated failures from %s (%s failures)",
+            source_ip,
+            failures_before_success
+        )
 
 # Store alerts
 for alert in alerts:
