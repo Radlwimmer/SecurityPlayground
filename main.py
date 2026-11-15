@@ -162,8 +162,6 @@ for alert in alerts:
 
 # 8. Display results
 logging.info("Displaying events stored in database")
-for event in get_events():
-    print(event)
 
 logging.info("Displaying alerts stored in database")
 for alert in get_alerts():
