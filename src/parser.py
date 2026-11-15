@@ -44,3 +44,15 @@ def parse_log_line(line):
         }
 
     return None
+
+def parse_log_file(file_path):
+    parsed_events = []
+
+    with open(file_path, "r", encoding="utf-8") as log_file:
+        for line in log_file:
+            event = parse_log_line(line)
+
+            if event:
+                parsed_events.append(event)
+
+    return parsed_events

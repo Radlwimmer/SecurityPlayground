@@ -19,8 +19,7 @@ from src.detection import (
     create_alert
 )
 
-from src.parser import parse_log_line
-
+from src.parser import parse_log_file
 
 # Create database
 create_tables()
@@ -29,24 +28,9 @@ clear_events()
 
 
 # Log samples
-log_lines = [
-    "Nov 15 10:00:00 server sshd[1001]: Failed password for admin from 203.0.113.10 port 54321 ssh2",
-    "Nov 15 10:01:00 server sshd[1002]: Failed password for irene from 203.0.113.10 port 54322 ssh2",
-    "Nov 15 10:02:00 server sshd[1003]: Failed password for marcel from 203.0.113.10 port 54323 ssh2",
-    "Nov 15 10:03:00 server sshd[1004]: Failed password for karl from 203.0.113.10 port 54324 ssh2",
-    "Nov 15 10:04:00 server sshd[1005]: Failed password for peter from 203.0.113.10 port 54325 ssh2",
-    "Nov 15 10:05:00 server systemd[1]: Started system service",
-    "Nov 15 10:05:30 server sshd[1006]: Accepted password for peter from 203.0.113.10 port 54326 ssh2",
-]
-
-
-# Parse logs and store valid events
-for line in log_lines:
-    parsed_event = parse_log_line(line)
-
-    if parsed_event:
-        insert_event(parsed_event)
-
+parsed_events = parse_log_file("sample_logs/auth.log")
+for event in parsed_events:
+    insert_event(event)
 
 # Load events
 saved_events = get_events()
