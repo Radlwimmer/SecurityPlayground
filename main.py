@@ -1,5 +1,6 @@
-
+import argparse
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from src.database import (
     create_tables,
@@ -28,7 +29,20 @@ clear_events()
 
 
 # Log samples
-parsed_events = parse_log_file("sample_logs/auth.log")
+argument_parser = argparse.ArgumentParser(
+    description="Analyze SSH authentication logs."
+)
+argument_parser.add_argument(
+    "--log-file",
+    default="sample_logs/auth.log",
+    help="Path to the SSH authentication log file."
+)
+args = argument_parser.parse_args()
+log_file_path = args.log_file
+if not Path(log_file_path).is_file():
+    print(f"Error: Log file not found: {log_file_path}")
+    raise SystemExit(1)
+parsed_events = parse_log_file(log_file_path)
 for event in parsed_events:
     insert_event(event)
 
