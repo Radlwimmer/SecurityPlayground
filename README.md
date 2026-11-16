@@ -2,7 +2,7 @@
 
 A lightweight Python-based mini-SIEM that analyses SSH authentication logs, detects suspicious login activity, and visualises security events through an interactive dashboard.
 
-## 🚀 Live Demo
+## Live Demo
 
 **[Open SecureWatch Dashboard](https://securityplayground-demo.streamlit.app/)**
 
@@ -21,6 +21,6 @@ A lightweight Python-based mini-SIEM that analyses SSH authentication logs, dete
 
 Python · Streamlit · SQLite
 
-## 📸 Dashboard Preview
+## Dashboard Preview
 
 ![SecureWatch Dashboard](dashboard_screenshot1.png)
