@@ -1,10 +1,10 @@
-# 🛡️ SecureWatch – SSH Security Monitoring Dashboard
+# 🛡️ SecurityPlayground – SSH Security Monitoring Dashboard
 
 A lightweight Python-based mini-SIEM that analyses SSH authentication logs, detects suspicious login activity, and visualises security events through an interactive dashboard.
 
 ## Live Demo
 
-**[Open SecureWatch Dashboard](https://securityplayground-demo.streamlit.app/)**
+**[Open SecurityPlayground Dashboard](https://securityplayground-demo.streamlit.app/)**
 
 *Hosted on Streamlit Community Cloud. Uses synthetic SSH log data for demonstration purposes.*
 
@@ -23,4 +23,4 @@ Python · Streamlit · SQLite
 
 ## Dashboard Preview
 
-![SecureWatch Dashboard](dashboard_screenshot1.png)
+![SecurityPlayground Dashboard](dashboard_screenshot1.png)
