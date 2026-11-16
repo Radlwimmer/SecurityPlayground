@@ -19,5 +19,5 @@ A lightweight Python-based mini-SIEM that analyses SSH authentication logs, dete
 
 ## Technologies
 
-Python · Streamlit · SQLite · Pandas · Pytest
+Python · Streamlit · SQLite
 
