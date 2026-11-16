@@ -99,7 +99,9 @@ with list_col:
                 st.write(f"**Source IP:** {event[3]}")
                 st.write(f"**Event Type:** {event[4]}")
 
+
 with chart_col:
+    st.write("")
     st.subheader("SSH Activity Timeline")
 
     filtered_event_counts = defaultdict(
@@ -117,36 +119,28 @@ with chart_col:
 
         filtered_event_counts[time_bucket][event[4]] += 1
 
-    timeline_filter = st.selectbox(
-        "Show login activity",
-        ["All", "Failed logins", "Successful logins"],
-        key="ssh_timeline_filter"
-    )
-
     if filtered_event_counts:
         sorted_buckets = sorted(filtered_event_counts.items())
 
         chart_data = {
             "Time": [
                 timestamp for timestamp, _ in sorted_buckets
-            ]
-        }
-
-        if timeline_filter in ["All", "Failed logins"]:
-            chart_data["Failed logins"] = [
+            ],
+            "Failed logins": [
                 counts["FAILED"]
                 for _, counts in sorted_buckets
-            ]
-
-        if timeline_filter in ["All", "Successful logins"]:
-            chart_data["Successful logins"] = [
+            ],
+            "Successful logins": [
                 counts["SUCCESS"]
                 for _, counts in sorted_buckets
             ]
-
+        }
+        st.write("")
+        st.write("")
         st.line_chart(chart_data, x="Time")
     else:
         st.info("No events match the selected filters.")
+
 
 total_alerts = max(len(alerts), 1)
 
@@ -212,6 +206,7 @@ with alert_list_col:
                 st.write(f"**Count:** {alert[6]}")
 
 with incident_chart_col:
+    st.write("")
     st.subheader("Alert Timeline")
 
     filtered_incident_counts = defaultdict(
@@ -257,6 +252,8 @@ with incident_chart_col:
             for _, counts in sorted_buckets
         ]
 
+        st.write("")
+        st.write("")
         st.line_chart(incident_chart_data, x="Time")
     else:
         st.info("No incidents match the selected filters.")
