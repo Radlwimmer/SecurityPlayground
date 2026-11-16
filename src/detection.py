@@ -29,6 +29,7 @@ def count_unique_usernames(events, source_ip, window):
     )
 
     max_count = 0
+    threshold_timestamp = None
     left = 0
 
     for right in range(len(attempts)):
@@ -40,18 +41,25 @@ def count_unique_usernames(events, source_ip, window):
             for timestamp, username in attempts[left:right + 1]
         }
 
-        max_count = max(max_count, len(usernames))
+        current_count = len(usernames)
 
-    return max_count
+        if current_count > max_count:
+            max_count = current_count
+            threshold_timestamp = attempts[right][0]
+
+    return max_count, threshold_timestamp
 
 def detect_password_spraying(events, source_ip, threshold, window):
-    username_count = count_unique_usernames(
+    username_count, spraying_timestamp = count_unique_usernames(
         events,
         source_ip,
         window
     )
 
-    return username_count >= threshold
+    if username_count >= threshold:
+        return username_count, spraying_timestamp
+
+    return 0, None
 
 def detect_success_after_failures(events, source_ip, threshold, window):
     ip_events = sorted(
@@ -77,14 +85,18 @@ def detect_success_after_failures(events, source_ip, threshold, window):
             ]
 
             if len(recent_failures) >= threshold:
-                return len(recent_failures)
+                return len(recent_failures), event["timestamp"]
 
-    return 0
+    return 0, None
 
 
-def create_alert(source_ip, alert_type, severity, description, count):
+def create_alert(source_ip, alert_type, severity, description, count, timestamp=None):
     return {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": (
+            timestamp.isoformat()
+            if timestamp
+            else datetime.now().isoformat()
+        ),
         "source_ip": source_ip,
         "alert_type": alert_type,
         "severity": severity,

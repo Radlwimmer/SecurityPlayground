@@ -92,6 +92,12 @@ for source_ip in source_ips:
         brute_force_time_window
     )
     # detecting brute force
+    last_failed_timestamp = max(
+        event["timestamp"]
+        for event in events
+        if event["source_ip"] == source_ip
+        and event["event_type"] == "FAILED"
+    )
     if attempts_in_window >= brute_force_threshold:
         alerts.append(
             create_alert(
@@ -99,7 +105,8 @@ for source_ip in source_ips:
                 "BRUTE_FORCE",
                 "HIGH",
                 "Multiple failed login attempts",
-                attempts_in_window
+                attempts_in_window,
+                last_failed_timestamp
             )
         )
         logging.warning(
@@ -108,23 +115,24 @@ for source_ip in source_ips:
             attempts_in_window
         )
     # detecting spraying
-    if detect_password_spraying(
+    spraying_result = detect_password_spraying(
         events,
         source_ip,
         spraying_threshold,
         spraying_time_window
-    ):
+    )
+
+    unique_usernames, spraying_timestamp = spraying_result
+
+    if unique_usernames:
         alerts.append(
             create_alert(
                 source_ip,
                 "PASSWORD_SPRAYING",
                 "HIGH",
                 "Multiple usernames targeted",
-                count_unique_usernames(
-                    events,
-                    source_ip,
-                    spraying_time_window
-                )
+                unique_usernames,
+                spraying_timestamp
             )
         )
         logging.warning(
@@ -132,7 +140,7 @@ for source_ip in source_ips:
             source_ip
         )
     # detect failures before success
-    failures_before_success = detect_success_after_failures(
+    failures_before_success, success_timestamp = detect_success_after_failures(
         events,
         source_ip,
         success_after_failures_threshold,
@@ -146,7 +154,8 @@ for source_ip in source_ips:
                 "SUCCESS_AFTER_FAILURES",
                 "CRITICAL",
                 "Successful login after multiple failed attempts",
-                failures_before_success
+                failures_before_success,
+                success_timestamp
             )
         )
         logging.warning(
@@ -160,7 +169,7 @@ for alert in alerts:
     insert_alert(alert)
 
 
-# 8. Display results
+# Display results
 logging.info("Displaying events stored in database")
 
 logging.info("Displaying alerts stored in database")
