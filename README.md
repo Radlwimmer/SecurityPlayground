@@ -21,3 +21,6 @@ A lightweight Python-based mini-SIEM that analyses SSH authentication logs, dete
 
 Python · Streamlit · SQLite
 
+## 📸 Dashboard Preview
+
+![SecureWatch Dashboard](dashboard_screenshot1.png)
